@@ -35,13 +35,16 @@ void Camera::Update(float deltaTime)
 		float phiDelta = turnSpeed * (my - lastMouseY) * ((invertVerticalCameraMovement) * 2.f - 1);
 		phi -= glm::abs(phi + phiDelta) > 70.f ? 0 : phiDelta;
 
+		float speed = 1.f;
+		// sprint
+		if (input->isKeyDown(aie::INPUT_KEY_LEFT_SHIFT)) speed = 2.3f;
 		// only enable movement if clicked into editor
-		if (input->isKeyDown(aie::INPUT_KEY_X)) position += up * deltaTime;
-		if (input->isKeyDown(aie::INPUT_KEY_Z)) position -= up * deltaTime;
-		if (input->isKeyDown(aie::INPUT_KEY_W)) position += forward * deltaTime;
-		if (input->isKeyDown(aie::INPUT_KEY_S)) position -= forward * deltaTime;
-		if (input->isKeyDown(aie::INPUT_KEY_D)) position += right * deltaTime;
-		if (input->isKeyDown(aie::INPUT_KEY_A)) position -= right * deltaTime;
+		if (input->isKeyDown(aie::INPUT_KEY_X)) position += up * (deltaTime * speed);
+		if (input->isKeyDown(aie::INPUT_KEY_Z)) position -= up * (deltaTime * speed);
+		if (input->isKeyDown(aie::INPUT_KEY_W)) position += forward * (deltaTime * speed);
+		if (input->isKeyDown(aie::INPUT_KEY_S)) position -= forward * (deltaTime * speed);
+		if (input->isKeyDown(aie::INPUT_KEY_D)) position += right * (deltaTime * speed);
+		if (input->isKeyDown(aie::INPUT_KEY_A)) position -= right * (deltaTime * speed);
 	}
 
 	// stores this frames values for next frame

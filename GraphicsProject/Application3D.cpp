@@ -1,6 +1,7 @@
 #include "Application3D.h"
 #include "Gizmos.h"
 #include "Input.h"
+#include "Shader.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
@@ -25,10 +26,78 @@ bool Application3D::startup() {
 	Gizmos::create(10000, 10000, 10000, 10000);
 
 	// create simple camera transforms
-	m_viewMatrix = glm::lookAt(vec3(10), vec3(0), vec3(0, 1, 0));
-	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f,
-										  getWindowWidth() / (float)getWindowHeight(),
-										  0.1f, 1000.f);
+	m_viewMatrix = camera.GetViewMatrix();
+	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
+
+	// load vertex shader from file
+	m_shader.loadShader(aie::eShaderStage::VERTEX,
+		"./shaders/simple.vert");
+	// load fragment shader from file
+	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
+		"./shaders/simple.frag");
+	
+	m_texturedShader.loadShader(aie::eShaderStage::VERTEX,
+		"./shaders/textured.vert");
+	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT,
+		"./shaders/textured.frag");
+	
+	if (m_shader.link() == false)
+	{
+		printf("Shader Error: %s \n", m_shader.getLastError());
+		return false;
+	}
+	
+	if (m_texturedShader.link() == false)
+	{
+		printf("Textured Shader Error: %s \n", m_texturedShader.getLastError());
+		return false;
+	}
+
+	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
+	{
+		printf("Failed to load texture!\n");
+		return false;
+	}
+
+	/*
+	Mesh::Vertex vertices[6];
+	vertices[0].position = { -0.5f, 0, 0.5f, 1 };
+	vertices[1].position = { 0.5f, 0, 0.5f, 1 };
+	vertices[2].position = { -0.5f, 0, -0.5f, 1 };
+	vertices[3].position = { 0.5f, 0, -0.5f, 1 };
+
+	unsigned int indices[6] = { 0, 1, 2, 2, 1, 3 };
+
+	m_quadMesh.initialise(4, vertices, 6, indices);	 
+	*/
+
+	m_quadMesh.initialiseQuad();
+
+	//make the quad 10 units wide
+	m_quadTransform = {
+		10, 0, 0, 0,
+		0, 10, 0, 0,
+		0, 0, 10, 0,
+		0, 0, 0, 1 };
+
+	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
+	{
+		printf("Soulspear Mesh Error!\n");
+		return false;
+	}
+
+	if (m_spearTexture.load("./soulspear/soulspear_diffuse.tga") == false)
+	{
+		printf("Soulspear Texture Error!\n");
+		return false;
+	}
+
+	m_spearTransform = {
+		1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1
+	};
 
 	return true;
 }
@@ -95,14 +164,29 @@ void Application3D::draw() {
 	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 	m_viewMatrix = camera.GetViewMatrix();
 
-	
+	auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
 
 	// bind shader
-	// m_shader.bind();
-	
+	m_texturedShader.bind();
 	// bind transform
-	// auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
-	// m_shader.bindUniform("ProjectionViewModel", pvm);
+	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
+
+	// bind texture location
+	m_texturedShader.bindUniform("diffuseTexture", 0);
+
+	// bind texture to specified location
+	m_gridTexture.bind(0);
+
+	// draw quad
+	m_quadMesh.draw();
+
+	auto pvm2 = m_projectionMatrix * m_viewMatrix * m_spearTransform;
+
+	m_texturedShader.bind();
+	m_texturedShader.bindUniform("ProjectionViewModel", pvm2);
+	m_texturedShader.bindUniform("diffuseTexture", 0);
+	m_spearTexture.bind(0);
+	m_spearMesh.draw();
 	
 	// draw 3D gizmos
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
