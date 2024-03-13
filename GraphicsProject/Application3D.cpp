@@ -10,7 +10,7 @@ using glm::mat4;
 using aie::Gizmos;
 
 Application3D::Application3D() {
-
+	camera = Camera(glm::vec3(0, 1, 0));
 }
 
 Application3D::~Application3D() {
@@ -42,10 +42,6 @@ void Application3D::update(float deltaTime) {
 
 	// query time since application started
 	float time = getTime();
-
-	// rotate camera
-	m_viewMatrix = glm::lookAt(vec3(glm::sin(time) * 10, 10, glm::cos(time) * 10),
-							   vec3(0), vec3(0, 1, 0));
 
 	// wipe the gizmos clean for this frame
 	Gizmos::clear();
@@ -81,6 +77,8 @@ void Application3D::update(float deltaTime) {
 					  glm::vec2(getWindowWidth() / 2 * (fmod(getTime(), 3.f) / 3), 20),
 					  vec4(0, 1, 1, 1));
 
+	camera.Update(deltaTime);
+
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
 
@@ -94,10 +92,16 @@ void Application3D::draw() {
 	clearScreen();
 
 	// update perspective in case window resized
-	m_projectionMatrix = glm::perspective(glm::pi<float>() * 0.25f,
-										  getWindowWidth() / (float)getWindowHeight(),
-										  0.1f, 1000.f);
+	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
+	m_viewMatrix = camera.GetViewMatrix();
 
+	// bind shader
+	// m_shader.bind();
+	
+	// bind transform
+	// auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
+	// m_shader.bindUniform("ProjectionViewModel", pvm);
+	
 	// draw 3D gizmos
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
 

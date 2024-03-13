@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Application.h"
+#include "Camera.h"
 #include <glm/mat4x4.hpp>
 
 class Application3D : public aie::Application {
@@ -16,6 +17,7 @@ public:
 	virtual void draw();
 
 protected:
+	Camera camera;
 
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
