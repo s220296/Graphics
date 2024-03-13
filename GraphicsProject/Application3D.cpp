@@ -95,6 +95,8 @@ void Application3D::draw() {
 	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 	m_viewMatrix = camera.GetViewMatrix();
 
+	
+
 	// bind shader
 	// m_shader.bind();
 	

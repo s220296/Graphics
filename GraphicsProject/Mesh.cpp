@@ -50,4 +50,10 @@ void Mesh::initialiseQuad()
 
 void Mesh::draw()
 {
+	glBindVertexArray(vao);
+	// using indices or just vertices?
+	if (ibo != 0)
+		glDrawElements(GL_TRIANGLES, 3 * triCount, GL_UNSIGNED_INT, 0);
+	else
+		glDrawArrays(GL_TRIANGLES, 0, 3 * triCount);
 }
