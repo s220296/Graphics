@@ -25,6 +25,7 @@ void Mesh::initialiseQuad()
 
 	// define 6 vertices for 2 triangles
 	Vertex vertices[6];
+	//position
 	vertices[0].position = { -0.5f, 0, 0.5f, 1 };
 	vertices[1].position = { 0.5f, 0, 0.5f, 1 };
 	vertices[2].position = { -0.5f, 0, -0.5f, 1 };
@@ -32,7 +33,15 @@ void Mesh::initialiseQuad()
 	vertices[3].position = { -0.5f, 0, -0.5f, 1 };
 	vertices[4].position = { 0.5f, 0, 0.5f, 1 };
 	vertices[5].position = { 0.5f, 0, -0.5f, 1 };
-	
+	//normal
+	vertices[0].normal = { 0, 1, 0, 0 };
+	vertices[1].normal = { 0, 1, 0, 0 };
+	vertices[2].normal = { 0, 1, 0, 0 };
+
+	vertices[3].normal = { 0, 1, 0, 0 };
+	vertices[4].normal = { 0, 1, 0, 0 };
+	vertices[5].normal = { 0, 1, 0, 0 };
+	//texCoord
 	vertices[0].texCoord = { 0, 1 }; // bot left
 	vertices[1].texCoord = { 1, 1 }; // bot right
 	vertices[2].texCoord = { 0, 0 }; // top left
@@ -47,6 +56,10 @@ void Mesh::initialiseQuad()
 	// enable first element as position
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+	// set the 2nd element to be the normal
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_TRUE, sizeof(Vertex), (void*)16);
 
 	glEnableVertexAttribArray(2); // the 3rd attribute (texCoord)
 	// attribute is at index 2, has 2 float values, dont normalise, sizeof(Vertex) between

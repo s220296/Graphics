@@ -40,6 +40,9 @@ bool Application3D::startup() {
 		"./shaders/textured.vert");
 	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT,
 		"./shaders/textured.frag");
+
+	m_simplePhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/simplePhong.vert");
+	m_simplePhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simplePhong.frag");
 	
 	if (m_shader.link() == false)
 	{
@@ -53,23 +56,20 @@ bool Application3D::startup() {
 		return false;
 	}
 
+	if (m_simplePhong.link() == false)
+	{
+		printf("Phong Shader Error: %s \n", m_simplePhong.getLastError());
+		return false;
+	}
+
 	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
 	{
 		printf("Failed to load texture!\n");
 		return false;
 	}
 
-	/*
-	Mesh::Vertex vertices[6];
-	vertices[0].position = { -0.5f, 0, 0.5f, 1 };
-	vertices[1].position = { 0.5f, 0, 0.5f, 1 };
-	vertices[2].position = { -0.5f, 0, -0.5f, 1 };
-	vertices[3].position = { 0.5f, 0, -0.5f, 1 };
-
-	unsigned int indices[6] = { 0, 1, 2, 2, 1, 3 };
-
-	m_quadMesh.initialise(4, vertices, 6, indices);	 
-	*/
+	m_light.color = { 0.5f, 0, 0.5f, 1 };
+	m_light.direction = { 1, 1, 0 };
 
 	m_quadMesh.initialiseQuad();
 
@@ -167,15 +167,14 @@ void Application3D::draw() {
 	auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
 
 	// bind shader
-	m_texturedShader.bind();
+	m_simplePhong.bind();
 	// bind transform
-	m_texturedShader.bindUniform("ProjectionViewModel", pvm);
+	m_simplePhong.bindUniform("ProjectionViewModel", pvm);
 
 	// bind texture location
-	m_texturedShader.bindUniform("diffuseTexture", 0);
+	m_simplePhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
 
-	// bind texture to specified location
-	m_gridTexture.bind(0);
+	m_simplePhong.bindUniform("LightDirection", m_light.direction);
 
 	// draw quad
 	m_quadMesh.draw();

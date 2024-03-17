@@ -30,10 +30,19 @@ protected:
 	Mesh m_quadMesh;
 	glm::mat4 m_quadTransform;
 
+	aie::ShaderProgram m_simplePhong;
+
 	aie::Texture m_spearTexture;
 	aie::OBJMesh m_spearMesh;
 	glm::mat4 m_spearTransform;
 
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
+
+	struct Light {
+		glm::vec3 direction;
+		glm::vec4 color;
+	};
+
+	Light m_light;
 };
