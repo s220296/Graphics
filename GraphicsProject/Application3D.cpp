@@ -29,6 +29,13 @@ bool Application3D::startup() {
 	m_viewMatrix = camera.GetViewMatrix();
 	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 
+	// Ambient light
+	Light light;
+	light.color = { 1, 1, 1 };
+	light.direction = { 1, -1, 1 };
+	// this will create one scene to use
+	m_scene = new Scene(&camera, glm::vec2(getWindowWidth(), getWindowHeight()), light);
+
 	// load vertex shader from file
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
 		"./shaders/color.vert");
@@ -137,6 +144,7 @@ bool Application3D::startup() {
 void Application3D::shutdown() {
 
 	Gizmos::destroy();
+	delete m_scene;
 }
 
 void Application3D::update(float deltaTime) {
@@ -191,12 +199,16 @@ void Application3D::update(float deltaTime) {
 
 	if (input->isKeyDown(aie::INPUT_KEY_ESCAPE))
 		quit();
+
+	m_scene->Update(deltaTime);
 }
 
 void Application3D::draw() {
 
 	// wipe the screen to the background colour
 	clearScreen();
+
+	m_scene->Draw();
 
 	// update perspective in case window resized
 	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());

@@ -6,6 +6,8 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "OBJMesh.h"
+#include "Scene.h"
+#include "Instance.h"
 #include <glm/mat4x4.hpp>
 
 class Application3D : public aie::Application {
@@ -48,12 +50,14 @@ protected:
 	glm::mat4	m_viewMatrix;
 	glm::mat4	m_projectionMatrix;
 
-	struct Light {
+	struct OldLight {
 		glm::vec3 direction;
 		glm::vec3 diffuse;
 		glm::vec3 specular;
 	};
 
-	Light m_light;
+	OldLight m_light;
 	glm::vec3 m_ambientLight;
+
+	Scene* m_scene;
 };
