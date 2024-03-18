@@ -43,6 +43,9 @@ bool Application3D::startup() {
 
 	m_simplePhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/simplePhong.vert");
 	m_simplePhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/simplePhong.frag");
+
+	m_classicPhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/classicPhong.vert");
+	m_classicPhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/classicPhong.frag");
 	
 	if (m_shader.link() == false)
 	{
@@ -62,14 +65,23 @@ bool Application3D::startup() {
 		return false;
 	}
 
+	if (m_classicPhong.link() == false)
+	{
+		printf("Phong Shader Error: %s \n", m_classicPhong.getLastError());
+		return false;
+	}
+
 	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
 	{
 		printf("Failed to load texture!\n");
 		return false;
 	}
 
-	m_light.color = { 0.5f, 0, 0.5f, 1 };
-	m_light.direction = { 1, 1, 0 };
+	m_light.diffuse = { 1.f, 1.f, 0.3f };
+	m_light.specular = { 1.f, 1.f, 0.3f };
+	m_light.direction = { 0, -1, 0 };
+
+	m_ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	m_quadMesh.initialiseQuad();
 
@@ -148,6 +160,8 @@ void Application3D::update(float deltaTime) {
 
 	camera.Update(deltaTime);
 
+	m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
+
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
 
@@ -167,14 +181,15 @@ void Application3D::draw() {
 	auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
 
 	// bind shader
-	m_simplePhong.bind();
+	m_classicPhong.bind();
 	// bind transform
-	m_simplePhong.bindUniform("ProjectionViewModel", pvm);
+	m_classicPhong.bindUniform("ProjectionViewModel", pvm);
 
 	// bind texture location
-	m_simplePhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
+	m_classicPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
 
-	m_simplePhong.bindUniform("LightDirection", m_light.direction);
+	m_classicPhong.bindUniform("LightDirection", m_light.direction);
+	m_classicPhong.bindUniform("diffuse", m_light.diffuse);
 
 	// draw quad
 	m_quadMesh.draw();

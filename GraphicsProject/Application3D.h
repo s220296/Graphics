@@ -31,6 +31,7 @@ protected:
 	glm::mat4 m_quadTransform;
 
 	aie::ShaderProgram m_simplePhong;
+	aie::ShaderProgram m_classicPhong;
 
 	aie::Texture m_spearTexture;
 	aie::OBJMesh m_spearMesh;
@@ -41,8 +42,10 @@ protected:
 
 	struct Light {
 		glm::vec3 direction;
-		glm::vec4 color;
+		glm::vec3 diffuse;
+		glm::vec3 specular;
 	};
 
 	Light m_light;
+	glm::vec3 m_ambientLight;
 };
