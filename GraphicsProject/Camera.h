@@ -11,6 +11,7 @@ public:
 	~Camera() {}
 
 	void Update(float deltaTime);
+	void Draw();
 
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix(float w, float h);

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "Gizmos.h"
 #include <glm/ext.hpp>
 #include <Input.h>
 
@@ -50,6 +51,11 @@ void Camera::Update(float deltaTime)
 	// stores this frames values for next frame
 	lastMouseX = mx;
 	lastMouseY = my;
+}
+
+void Camera::Draw()
+{
+	// Draw box on top of camera
 }
 
 glm::mat4 Camera::GetViewMatrix()
