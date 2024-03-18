@@ -31,10 +31,10 @@ bool Application3D::startup() {
 
 	// load vertex shader from file
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
-		"./shaders/simple.vert");
+		"./shaders/color.vert");
 	// load fragment shader from file
 	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
-		"./shaders/simple.frag");
+		"./shaders/color.frag");
 	
 	m_texturedShader.loadShader(aie::eShaderStage::VERTEX,
 		"./shaders/textured.vert");
@@ -47,6 +47,12 @@ bool Application3D::startup() {
 	m_classicPhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/classicPhong.vert");
 	m_classicPhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/classicPhong.frag");
 	
+	m_texturedPhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/texturedPhong.vert");
+	m_texturedPhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/texturedPhong.frag");
+
+	m_normalMapPhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
+	m_normalMapPhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
+
 	if (m_shader.link() == false)
 	{
 		printf("Shader Error: %s \n", m_shader.getLastError());
@@ -71,6 +77,18 @@ bool Application3D::startup() {
 		return false;
 	}
 
+	if (m_texturedPhong.link() == false)
+	{
+		printf("Textured Phong Shader Error: %s \n", m_texturedPhong.getLastError());
+		return false;
+	}
+
+	if (m_normalMapPhong.link() == false)
+	{
+		printf("normal map Phong Shader Error: %s \n", m_normalMapPhong.getLastError());
+		return false;
+	}
+
 	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
 	{
 		printf("Failed to load texture!\n");
@@ -79,9 +97,9 @@ bool Application3D::startup() {
 
 	m_light.diffuse = { 1.f, 1.f, 0.3f };
 	m_light.specular = { 1.f, 1.f, 0.3f };
-	m_light.direction = { 0, -1, 0 };
-
 	m_ambientLight = { 0.25f, 0.25f, 0.25f };
+
+	m_light.direction = { 0, -1, 0 };
 
 	m_quadMesh.initialiseQuad();
 
@@ -111,6 +129,8 @@ bool Application3D::startup() {
 		0, 0, 0, 1
 	};
 
+	ObjLoader(m_dragonMesh, m_dragTransform, "./dragon/dragon.obj", "Dragon", false, 0.2f, { 1.f,0,1.f });
+
 	return true;
 }
 
@@ -139,9 +159,11 @@ void Application3D::update(float deltaTime) {
 						i == 10 ? white : black);
 	}
 
+
+#pragma region ShapesAndShit
+	/*
 	// add a transform so that we can see the axis
 	Gizmos::addTransform(mat4(1));
-
 	// demonstrate a few shapes
 	Gizmos::addAABBFilled(vec3(0), vec3(1), vec4(0, 0.5f, 1, 0.25f));
 	Gizmos::addSphere(vec3(5, 0, 5), 1, 8, 8, vec4(1, 0, 0, 0.5f));
@@ -157,6 +179,8 @@ void Application3D::update(float deltaTime) {
 	Gizmos::add2DAABB(glm::vec2(getWindowWidth() / 2, 100),
 					  glm::vec2(getWindowWidth() / 2 * (fmod(getTime(), 3.f) / 3), 20),
 					  vec4(0, 1, 1, 1));
+					  */
+#pragma endregion
 
 	camera.Update(deltaTime);
 
@@ -178,12 +202,14 @@ void Application3D::draw() {
 	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 	m_viewMatrix = camera.GetViewMatrix();
 
-	auto pvm = m_projectionMatrix * m_viewMatrix * m_quadTransform;
+	auto pv = m_projectionMatrix * m_viewMatrix;
+
+#pragma region ClassicPhong
 
 	// bind shader
 	m_classicPhong.bind();
 	// bind transform
-	m_classicPhong.bindUniform("ProjectionViewModel", pvm);
+	m_classicPhong.bindUniform("ProjectionViewModel", pv * m_quadTransform);
 
 	// bind texture location
 	m_classicPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
@@ -196,19 +222,78 @@ void Application3D::draw() {
 	m_classicPhong.bindUniform("specularLight", m_light.specular);
 
 	// draw quad
-	m_quadMesh.draw();
+	//m_quadMesh.draw();
 
-	auto pvm2 = m_projectionMatrix * m_viewMatrix * m_spearTransform;
-
-	m_classicPhong.bind();
-	m_classicPhong.bindUniform("ProjectionViewModel", pvm2);
+	//m_classicPhong.bind();
+	//m_classicPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
 	//m_texturedShader.bindUniform("diffuseTexture", 0);
 	//m_spearTexture.bind(0);
-	m_spearMesh.draw();
+	//m_spearMesh.draw();
 	
+	m_shader.bind();
+	m_shader.bindUniform("ProjectionViewModel", pv * m_dragTransform);
+	m_dragonMesh.draw();
+
+#pragma endregion
+
+#pragma region TexturedPhong
+
+	// Phong stuff
+	/*
+	m_texturedPhong.bind();
+	m_texturedPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
+	m_texturedPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
+	m_texturedPhong.bindUniform("CameraPosition", camera.GetPosition());
+	m_texturedPhong.bindUniform("LightDirection", m_light.direction);
+	m_texturedPhong.bindUniform("ambientLight", m_ambientLight);
+	m_texturedPhong.bindUniform("diffuseLight", m_light.diffuse);
+	m_texturedPhong.bindUniform("specularLight", m_light.specular);
+	m_texturedPhong.bindUniform("diffuseTexture", 0);
+	m_spearTexture.bind(0);
+	m_spearMesh.draw();
+	*/
+#pragma endregion
+
+#pragma region NormalMapPhong
+
+	m_normalMapPhong.bind();
+	m_normalMapPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
+	m_normalMapPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
+	m_normalMapPhong.bindUniform("CameraPosition", camera.GetPosition());
+	m_normalMapPhong.bindUniform("LightDirection", m_light.direction);
+	m_normalMapPhong.bindUniform("ambientLight", m_ambientLight);
+	m_normalMapPhong.bindUniform("diffuseLight", m_light.diffuse);
+	m_normalMapPhong.bindUniform("specularLight", m_light.specular);
+	m_normalMapPhong.bindUniform("diffuseTexture", 0);
+	m_normalMapPhong.bindUniform("specularTexture", 0);
+	// no need for texture.bind(0), obj file handles that for us, along with OBJMesh.cpp
+
+	m_spearMesh.draw();
+
+#pragma endregion
+
 	// draw 3D gizmos
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
 
 	// draw 2D gizmos using an orthogonal projection matrix (or screen dimensions)
 	Gizmos::draw2D((float)getWindowWidth(), (float)getWindowHeight());
 }
+
+bool Application3D::ObjLoader(aie::OBJMesh& __objMesh, glm::mat4& _transform, const char* _filepath, std::string _filename, bool _flipTextures, float _scale, glm::vec3 _position)
+{
+	if (__objMesh.load(_filepath, true, _flipTextures) == false)
+	{
+		printf("Object Mesh loading had an error");
+		return false;
+	}
+
+	_transform = {
+		_scale, 0,0,0,
+		0, _scale, 0,0,
+		0,0,_scale, 0,
+		_position.x, _position.y, _position.z, 1
+	};
+
+	return false;
+}
+

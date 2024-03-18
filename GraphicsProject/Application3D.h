@@ -20,6 +20,9 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
+	bool ObjLoader(aie::OBJMesh& __objMesh, glm::mat4& _transform, const char* _filepath,
+		std::string _filename, bool _flipTextures, float _scale, glm::vec3 _position);
+
 protected:
 	Camera camera;
 
@@ -32,6 +35,11 @@ protected:
 
 	aie::ShaderProgram m_simplePhong;
 	aie::ShaderProgram m_classicPhong;
+	aie::ShaderProgram m_texturedPhong;
+	aie::ShaderProgram m_normalMapPhong;
+
+	aie::OBJMesh m_dragonMesh;
+	glm::mat4 m_dragTransform;
 
 	aie::Texture m_spearTexture;
 	aie::OBJMesh m_spearMesh;
