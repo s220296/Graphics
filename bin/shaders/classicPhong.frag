@@ -3,13 +3,23 @@
 
 out vec4 FragColour;
 
+in vec4 vPosition;
 in vec3 vNormal;
 
-uniform vec3 ambient; // also seen as Ia
-uniform vec3 diffuse; // also seen as Id
-uniform vec3 specular;// also seen as Is
+// For the light source
+uniform vec3 ambientLight; // also seen as Ia
+uniform vec3 diffuseLight; // also seen as Id
+uniform vec3 specularLight;// also seen as Is
 
 uniform vec3 LightDirection;
+
+// Model material colors
+uniform vec3 Ka; // Ambient material color
+uniform vec3 Kd; // Diffuse material color
+uniform vec3 Ks; // Specular material color
+uniform float Ns; // Specular Power
+
+uniform vec4 CameraPosition;
 
 void main()
 {
@@ -19,7 +29,17 @@ void main()
 // calculate the lambert term (this is the negative light direciton)
     float lambertTerm = max(0, min(1, dot(N, -L)));
 
-    vec3 diffuseTotal = diffuse * lambertTerm;
+// calculate the view vector
+    vec3 V = normalize(CameraPosition.xyz - vPosition.xyz);
 
-    FragColour = vec4(diffuseTotal, 1);
+// calculate the reflection vector
+    vec3 R = reflect(L, N);
+
+    float specularTerm = pow(max(0, dot(R, V)), Ns);
+
+    vec3 ambientTotal = ambientLight * Ka;
+    vec3 diffuseTotal = diffuseLight * Kd * lambertTerm;
+    vec3 specularTotal = specularLight * Ks * specularTerm;
+
+    FragColour = vec4(ambientTotal + diffuseTotal + specularTotal, 1);
 }

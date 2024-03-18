@@ -188,18 +188,22 @@ void Application3D::draw() {
 	// bind texture location
 	m_classicPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
 
+	m_classicPhong.bindUniform("CameraPosition", camera.GetPosition());
+
 	m_classicPhong.bindUniform("LightDirection", m_light.direction);
-	m_classicPhong.bindUniform("diffuse", m_light.diffuse);
+	m_classicPhong.bindUniform("ambientLight", m_ambientLight);
+	m_classicPhong.bindUniform("diffuseLight", m_light.diffuse);
+	m_classicPhong.bindUniform("specularLight", m_light.specular);
 
 	// draw quad
 	m_quadMesh.draw();
 
 	auto pvm2 = m_projectionMatrix * m_viewMatrix * m_spearTransform;
 
-	m_texturedShader.bind();
-	m_texturedShader.bindUniform("ProjectionViewModel", pvm2);
-	m_texturedShader.bindUniform("diffuseTexture", 0);
-	m_spearTexture.bind(0);
+	m_classicPhong.bind();
+	m_classicPhong.bindUniform("ProjectionViewModel", pvm2);
+	//m_texturedShader.bindUniform("diffuseTexture", 0);
+	//m_spearTexture.bind(0);
 	m_spearMesh.draw();
 	
 	// draw 3D gizmos

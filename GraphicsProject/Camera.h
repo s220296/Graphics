@@ -15,6 +15,8 @@ public:
 	glm::mat4 GetViewMatrix();
 	glm::mat4 GetProjectionMatrix(float w, float h);
 
+	glm::vec3 GetPosition() { return position; }
+
 public:
 	float turnSpeed = 0.1f;
 	bool invertVerticalCameraMovement = false;
