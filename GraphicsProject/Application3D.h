@@ -23,8 +23,9 @@ public:
 	virtual void update(float deltaTime);
 	virtual void draw();
 
-	bool ObjLoader(aie::OBJMesh& __objMesh, glm::mat4& _transform, const char* _filepath,
-		std::string _filename, bool _flipTextures, float _scale, glm::vec3 _position);
+	bool ObjLoader(aie::OBJMesh& __objMesh, glm::mat4& _transform, 
+		const char* _filepath, std::string _filename, 
+		bool _flipTextures, float _scale, glm::vec3 _position);
 
 protected:
 	Camera camera;
