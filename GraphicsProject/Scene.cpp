@@ -35,7 +35,7 @@ void Scene::Draw()
 	for (int i = 0; i < MAX_LIGHTS && i < GetNumberOfLights(); i++)
 	{
 		m_pointLightPositions[i] = m_pointLights[i].direction;
-		m_pointLightColors[i] = m_pointLights[i].color;
+		m_pointLightColors[i] = m_pointLights[i].GetColor();
 	}
 
 	for (auto it = m_instances.begin(); it != m_instances.end(); it++)

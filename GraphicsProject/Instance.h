@@ -18,9 +18,20 @@ public:
 		aie::OBJMesh* mesh,
 		aie::ShaderProgram* shader,
 		bool isUntextured = false);
+	Instance(glm::vec3 _position,
+		glm::vec3 _eulerAngles,
+		glm::vec3 _scale,
+		aie::OBJMesh* mesh,
+		aie::ShaderProgram* shader,
+		bool isUntextured = false);
 	~Instance() {}
 
 	void Draw(Scene* scene);
+
+	static glm::mat4 MakeTransform(
+		glm::vec3 _position,
+		glm::vec3 _eulerAngles,
+		glm::vec3 _scale);
 
 protected:
 	glm::mat4 m_transform;

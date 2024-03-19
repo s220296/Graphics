@@ -13,6 +13,14 @@ Instance::Instance(glm::mat4 transform, aie::OBJMesh* mesh,
 {
 }
 
+Instance::Instance(glm::vec3 _position, glm::vec3 _eulerAngles, 
+	glm::vec3 _scale, aie::OBJMesh* mesh, 
+	aie::ShaderProgram* shader, bool isUntextured)
+	: m_mesh(mesh), m_shader(shader), m_isUntextured(isUntextured)
+{
+	m_transform = MakeTransform(_position, _eulerAngles, _scale);
+}
+
 void Instance::Draw(Scene* scene)
 {
 	m_shader->bind();
@@ -38,4 +46,16 @@ void Instance::Draw(Scene* scene)
 	m_shader->bindUniform("PointLightColors", numberOfLights, scene->GetPointLightColors());
 
 	m_mesh->draw();
+}
+
+glm::mat4 Instance::MakeTransform(glm::vec3 _position, glm::vec3 _eulerAngles, glm::vec3 _scale)
+{
+	return glm::translate(glm::mat4(1), _position)
+		* glm::rotate(glm::mat4(1), glm::radians(_eulerAngles.z),
+			glm::vec3(0, 0, 1))
+		* glm::rotate(glm::mat4(1), glm::radians(_eulerAngles.y),
+			glm::vec3(0, 1, 0))
+		* glm::rotate(glm::mat4(1), glm::radians(_eulerAngles.x),
+			glm::vec3(1, 0, 0))
+		* glm::scale(glm::mat4(1), _scale);
 }

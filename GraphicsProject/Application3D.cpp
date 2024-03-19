@@ -36,6 +36,11 @@ bool Application3D::startup() {
 	// this will create one scene to use
 	m_scene = new Scene(&camera, glm::vec2(getWindowWidth(), getWindowHeight()), light);
 
+	m_scene->GetPointLights().push_back(Light(glm::vec3(5, 3, 0), 
+		glm::vec3(1, 0, 0), 50.f));
+	m_scene->GetPointLights().push_back(Light(glm::vec3(-5, 3, 0), 
+		glm::vec3(0, 1, 0), 50.f));
+
 	// load vertex shader from file
 	m_shader.loadShader(aie::eShaderStage::VERTEX,
 		"./shaders/color.vert");
@@ -138,6 +143,13 @@ bool Application3D::startup() {
 
 	ObjLoader(m_dragonMesh, m_dragTransform, "./dragon/dragon.obj", "Dragon", false, 0.2f, { 1.f,0,1.f });
 
+	for (int i = 0; i < 10; i++)
+	{
+		m_scene->AddInstance(new Instance(glm::vec3(i * 2, 0, 0),
+			glm::vec3(0, i * 30, 0), glm::vec3(1),
+			&m_spearMesh, &m_normalMapPhong));
+	}
+
 	return true;
 }
 
@@ -209,12 +221,14 @@ void Application3D::draw() {
 	clearScreen();
 
 	m_scene->Draw();
-
-	// update perspective in case window resized
-	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
+m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 	m_viewMatrix = camera.GetViewMatrix();
 
 	auto pv = m_projectionMatrix * m_viewMatrix;
+
+	/*
+	// update perspective in case window resized
+	
 
 #pragma region ClassicPhong
 
@@ -247,11 +261,11 @@ void Application3D::draw() {
 	m_dragonMesh.draw();
 
 #pragma endregion
-
+	
 #pragma region TexturedPhong
 
 	// Phong stuff
-	/*
+	
 	m_texturedPhong.bind();
 	m_texturedPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
 	m_texturedPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
@@ -263,7 +277,7 @@ void Application3D::draw() {
 	m_texturedPhong.bindUniform("diffuseTexture", 0);
 	m_spearTexture.bind(0);
 	m_spearMesh.draw();
-	*/
+	
 #pragma endregion
 
 #pragma region NormalMapPhong
@@ -283,6 +297,8 @@ void Application3D::draw() {
 	m_spearMesh.draw();
 
 #pragma endregion
+
+*/
 
 	// draw 3D gizmos
 	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
