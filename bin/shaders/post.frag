@@ -45,7 +45,7 @@ vec4 BoxBlur (vec2 texCoord)
 vec4 EdgeDetection (vec2 texCoord)
 {
     int edgeCount = 0; // needs to exceed 1
-    float colorDifferenceThreshold = 0.08f;
+    float colorDifferenceThreshold = 0.1f;
     vec2 texel = 1.0f / textureSize(colorTarget, 0);
     
     vec4 color = texture(colorTarget, texCoord);
