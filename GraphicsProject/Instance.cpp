@@ -39,6 +39,7 @@ void Instance::Draw(Scene* scene)
 
 	m_shader->bindUniform("LightDirection", scene->GetGlobalLight().direction);
 	m_shader->bindUniform("ambientLight", scene->GetAmbientLightColor());
+	m_shader->bindUniform("diffuseLight", scene->GetAmbientLightColor());
 
 	int numberOfLights = scene->GetNumberOfLights();
 	m_shader->bindUniform("NumberOfLights", numberOfLights);

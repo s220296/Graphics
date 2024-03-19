@@ -113,6 +113,8 @@ bool Application3D::startup() {
 
 	m_light.direction = { 0, -1, 0 };
 
+#pragma region Quad Data
+
 	m_quadMesh.initialiseQuad();
 
 	//make the quad 10 units wide
@@ -122,27 +124,30 @@ bool Application3D::startup() {
 		0, 0, 10, 0,
 		0, 0, 0, 1 };
 
+#pragma endregion
+	// Load spear mesh
 	if (m_spearMesh.load("./soulspear/soulspear.obj", true, true) == false)
 	{
 		printf("Soulspear Mesh Error!\n");
 		return false;
 	}
-
+	// Load spear texture
 	if (m_spearTexture.load("./soulspear/soulspear_diffuse.tga") == false)
 	{
 		printf("Soulspear Texture Error!\n");
 		return false;
 	}
-
+	// Create spear transform
 	m_spearTransform = {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1
 	};
-
+	// Load dragon mesh and create dragon transform
 	ObjLoader(m_dragonMesh, m_dragTransform, "./dragon/dragon.obj", "Dragon", false, 0.2f, { 1.f,0,1.f });
 
+	// Add instances after this line
 	for (int i = 0; i < 10; i++)
 	{
 		m_scene->AddInstance(new Instance(glm::vec3(i * 2, 0, 0),
@@ -204,7 +209,7 @@ void Application3D::update(float deltaTime) {
 
 	camera.Update(deltaTime);
 
-	m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
+	//m_light.direction = glm::normalize(glm::vec3(glm::cos(time * 2), glm::sin(time * 2), 0));
 
 	// quit if we press escape
 	aie::Input* input = aie::Input::getInstance();
@@ -221,7 +226,7 @@ void Application3D::draw() {
 	clearScreen();
 
 	m_scene->Draw();
-m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
+	m_projectionMatrix = camera.GetProjectionMatrix(getWindowWidth(), getWindowHeight());
 	m_viewMatrix = camera.GetViewMatrix();
 
 	auto pv = m_projectionMatrix * m_viewMatrix;
