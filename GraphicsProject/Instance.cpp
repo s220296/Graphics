@@ -30,7 +30,7 @@ void Instance::Draw(Scene* scene)
 		scene->GetCamera()->GetViewMatrix();
 
 	m_shader->bindUniform("ProjectionViewModel", pv * m_transform);
-	m_shader->bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_transform)));
+	m_shader->bindUniform("ModelMatrix", m_transform);
 	m_shader->bindUniform("diffuseTexture", 0);
 	m_shader->bindUniform("specularTexture", 0);
 	m_shader->bindUniform("normalTexture", 0);

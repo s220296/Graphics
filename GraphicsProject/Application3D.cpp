@@ -48,9 +48,9 @@ bool Application3D::startup() {
 	m_shader.loadShader(aie::eShaderStage::FRAGMENT,
 		"./shaders/color.frag");
 	
-	m_texturedShader.loadShader(aie::eShaderStage::VERTEX,
+	m_boundTexture.loadShader(aie::eShaderStage::VERTEX,
 		"./shaders/textured.vert");
-	m_texturedShader.loadShader(aie::eShaderStage::FRAGMENT,
+	m_boundTexture.loadShader(aie::eShaderStage::FRAGMENT,
 		"./shaders/textured.frag");
 
 	m_simplePhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/simplePhong.vert");
@@ -65,15 +65,18 @@ bool Application3D::startup() {
 	m_normalMapPhong.loadShader(aie::eShaderStage::VERTEX, "./shaders/normalMap.vert");
 	m_normalMapPhong.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/normalMap.frag");
 
+	m_postProcess.loadShader(aie::eShaderStage::VERTEX, "./shaders/post.vert");
+	m_postProcess.loadShader(aie::eShaderStage::FRAGMENT, "./shaders/post.frag");
+
 	if (m_shader.link() == false)
 	{
 		printf("Shader Error: %s \n", m_shader.getLastError());
 		return false;
 	}
 	
-	if (m_texturedShader.link() == false)
+	if (m_boundTexture.link() == false)
 	{
-		printf("Textured Shader Error: %s \n", m_texturedShader.getLastError());
+		printf("Textured Shader Error: %s \n", m_boundTexture.getLastError());
 		return false;
 	}
 
@@ -101,6 +104,12 @@ bool Application3D::startup() {
 		return false;
 	}
 
+	if (m_postProcess.link() == false)
+	{
+		printf("post process Shader Error: %s \n", m_postProcess.getLastError());
+		return false;
+	}
+
 	if (m_gridTexture.load("./textures/numbered_grid.tga") == false)
 	{
 		printf("Failed to load texture!\n");
@@ -113,9 +122,16 @@ bool Application3D::startup() {
 
 	m_light.direction = { 0, -1, 0 };
 
+	if (m_renderTarget.initialise(1, getWindowWidth(), getWindowHeight()) == false)
+	{
+		printf("Render Target has an error!!\n");
+		return false;
+	}
+
 #pragma region Quad Data
 
 	m_quadMesh.initialiseQuad();
+	m_screenQuad.initialiseFullscreenQuad();
 
 	//make the quad 10 units wide
 	m_quadTransform = {
@@ -222,6 +238,9 @@ void Application3D::update(float deltaTime) {
 
 void Application3D::draw() {
 
+	// Bind to the render target
+	m_renderTarget.bind();
+
 	// wipe the screen to the background colour
 	clearScreen();
 
@@ -306,10 +325,24 @@ void Application3D::draw() {
 */
 
 	// draw 3D gizmos
-	Gizmos::draw(m_projectionMatrix * m_viewMatrix);
+	Gizmos::draw(pv);
 
 	// draw 2D gizmos using an orthogonal projection matrix (or screen dimensions)
 	Gizmos::draw2D((float)getWindowWidth(), (float)getWindowHeight());
+
+	// unbind the target from the back buffer
+
+	m_renderTarget.unbind();
+
+	//clear the back buffer
+	clearScreen();
+
+	m_postProcess.bind();
+	m_postProcess.bindUniform("colorTarget", 0);
+	m_postProcess.bindUniform("postProcessTarget", m_scene->GetPostProcessValue());
+	m_renderTarget.getTarget(0).bind(0);
+
+	m_screenQuad.draw();
 }
 
 bool Application3D::ObjLoader(aie::OBJMesh& __objMesh, glm::mat4& _transform, const char* _filepath, std::string _filename, bool _flipTextures, float _scale, glm::vec3 _position)

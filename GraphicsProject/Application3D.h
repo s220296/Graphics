@@ -8,6 +8,7 @@
 #include "OBJMesh.h"
 #include "Scene.h"
 #include "Instance.h"
+#include "RenderTarget.h"
 #include <glm/mat4x4.hpp>
 
 class Application3D : public aie::Application {
@@ -32,13 +33,20 @@ protected:
 
 	aie::ShaderProgram m_shader;
 	aie::ShaderProgram m_texturedShader;
+	// simple quad mesh
 	Mesh m_quadMesh;
+	Mesh m_screenQuad;
 	glm::mat4 m_quadTransform;
+
+	aie::RenderTarget m_renderTarget;
 
 	aie::ShaderProgram m_simplePhong;
 	aie::ShaderProgram m_classicPhong;
 	aie::ShaderProgram m_texturedPhong;
 	aie::ShaderProgram m_normalMapPhong;
+
+	aie::ShaderProgram m_boundTexture;
+	aie::ShaderProgram m_postProcess;
 
 	aie::OBJMesh m_dragonMesh;
 	glm::mat4 m_dragTransform;

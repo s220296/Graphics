@@ -77,6 +77,9 @@ public:
 	glm::vec3* GetPointLightColors()
 	{ return &m_pointLightColors[0];		}
 
+	int GetPostProcessValue()
+	{ return m_postProcessEffect;			}
+
 protected:
 	Camera*					m_mainCamera;
 	glm::vec2				m_windowSize;
@@ -86,5 +89,6 @@ protected:
 	glm::vec3				m_pointLightPositions[MAX_LIGHTS];
 	glm::vec3				m_pointLightColors[MAX_LIGHTS];
 
+	int						m_postProcessEffect = 0;
 };
 

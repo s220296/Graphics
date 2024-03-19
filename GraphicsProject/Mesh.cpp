@@ -75,6 +75,46 @@ void Mesh::initialiseQuad()
 	triCount = 2;
 }
 
+void Mesh::initialiseFullscreenQuad()
+{
+	// check that the mesh is not initialized already
+	assert(vao == 0);
+
+	// generate buffers
+	glGenBuffers(1, &vbo);
+	glGenVertexArrays(1, &vao);
+
+	// bind vertex array aka a mesh wrapper
+	glBindVertexArray(vao);
+
+	// bind vertex buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	// define 6 vertices for 2 triangles
+	float vertices[] = {
+		-1, 1, // top left
+		-1,-1, // bot left
+		 1, 1, // top right
+		-1,-1, // bot left
+		 1,-1, // bot right
+		 1, 1  // top right
+	};
+
+	glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float),
+		vertices, GL_STATIC_DRAW);
+
+	// enable first element as position
+	glEnableVertexAttribArray(0); // zero-indexed integer, 0 here is the first attribute
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 8, 0);
+
+	// unbind effects
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	triCount = 2;
+}
+
 void Mesh::initialise(unsigned int vertexCount, const Vertex* vertices, 
 					unsigned int indexCount, unsigned int* indices)
 {
