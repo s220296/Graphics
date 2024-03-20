@@ -6,8 +6,10 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "OBJMesh.h"
+
 #include "Scene.h"
 #include "Instance.h"
+
 #include "RenderTarget.h"
 #include <glm/mat4x4.hpp>
 

@@ -340,6 +340,7 @@ void Application3D::draw() {
 	m_postProcess.bind();
 	m_postProcess.bindUniform("colorTarget", 0);
 	m_postProcess.bindUniform("postProcessTarget", m_scene->GetPostProcessValue());
+	m_postProcess.bindUniform("fTime", getTime());
 	m_renderTarget.getTarget(0).bind(0);
 
 	m_screenQuad.draw();
