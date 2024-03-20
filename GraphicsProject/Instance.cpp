@@ -47,6 +47,9 @@ void Instance::Draw(Scene* scene)
 	m_shader->bindUniform("PointLightColors", numberOfLights, scene->GetPointLightColors());
 
 	m_mesh->draw();
+
+	// For depth-based shaders, maybe make DrawDepth function where vertices
+	// are colored with a depth.frag and use that to create a render texture
 }
 
 glm::mat4 Instance::MakeTransform(glm::vec3 _position, glm::vec3 _eulerAngles, glm::vec3 _scale)
