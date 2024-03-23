@@ -93,6 +93,6 @@ void Scene::ImGUI_Functions()
 	ImGui::End();
 
 	ImGui::Begin("Post Process Settings");
-	ImGui::DragInt("Active Post Processing Effect", &m_postProcessEffect, 0.01f, 0, 11);
+	ImGui::DragInt("Active Post Processing Effect", &m_postProcessEffect, 0.01f, 0, 12);
 	ImGui::End();
 }

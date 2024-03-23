@@ -58,7 +58,7 @@ void Instance::DrawDepth(Scene* scene)
 {
 	// lower values means more gradual darkening over longer distances
 	// effectively: lower value = can see farther
-	const float depthMultiplier = 0.04f; 
+	const float depthMultiplier = 0.01f; 
 
 	m_depthShader->bind();
 

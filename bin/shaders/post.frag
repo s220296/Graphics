@@ -183,6 +183,47 @@ vec4 DepthOfField (vec2 texCoord)
     { return texture(colorTarget, texCoord); }
 }
 
+vec4 EdgeDetectionLoop (vec2 texCoord, int pDistance)
+{
+    vec4 depthBuffer = texture(depthTarget, texCoord);
+
+    float depthDiff = 0.04f;
+    vec2 texel = 1.0f / textureSize(colorTarget, 0);
+
+    vec4 color = texture(colorTarget, texCoord);
+
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(pDistance, pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(pDistance, -pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(pDistance, 0)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(0, pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(0, -pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(-pDistance, pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(-pDistance, -pDistance)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+    if(abs(depthBuffer.x - texture(depthTarget, texCoord + texel * vec2(-pDistance, 0)).x) > depthDiff)
+    { color = vec4(0, 0, 0, 1); }
+
+    return color;
+}
+
+vec4 EdgeDetection2 (vec2 texCoord)
+{
+    vec4 color = vec4(1);
+
+    color = EdgeDetectionLoop(texCoord, 1);
+    color = EdgeDetectionLoop(texCoord, 2);
+
+    return color;
+}
+
 void main()
 {
     // first we want to calculate the texel's size
@@ -230,6 +271,9 @@ void main()
         break;
         case 11: //Depth of Field
         FragColour = DepthOfField(texCoord);
+        break;
+        case 12:
+        FragColour = EdgeDetection2(texCoord);
         break;
     }
 }
