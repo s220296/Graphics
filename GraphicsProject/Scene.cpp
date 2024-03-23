@@ -54,6 +54,15 @@ void Scene::Draw()
 	}
 }
 
+void Scene::DrawDepth()
+{
+	for (auto it = m_instances.begin(); it != m_instances.end(); it++)
+	{
+		Instance* instance = *it;
+		instance->DrawDepth(this);
+	}
+}
+
 void Scene::ImGUI_Functions()
 {
 	ImGui::Begin("Lights");
@@ -84,6 +93,6 @@ void Scene::ImGUI_Functions()
 	ImGui::End();
 
 	ImGui::Begin("Post Process Settings");
-	ImGui::DragInt("Active Post Processing Effect", &m_postProcessEffect, 0.01f, 0, 10);
+	ImGui::DragInt("Active Post Processing Effect", &m_postProcessEffect, 0.01f, 0, 11);
 	ImGui::End();
 }

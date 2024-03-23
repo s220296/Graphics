@@ -128,6 +128,12 @@ bool Application3D::startup() {
 		return false;
 	}
 
+	if (m_depthTarget.initialise(1, getWindowWidth(), getWindowHeight()) == false)
+	{
+		printf("Depth Target has an error!!\n");
+		return false;
+	}
+
 #pragma region Quad Data
 
 	m_quadMesh.initialiseQuad();
@@ -337,11 +343,28 @@ void Application3D::draw() {
 	//clear the back buffer
 	clearScreen();
 
+	// Apply depth buffer
+	m_depthTarget.bind();
+
+	aie::Application::setBackgroundColour(1.f, 1.f, 1.f);
+	clearScreen();
+
+	m_scene->DrawDepth();
+
+	// Depth buffer does not include gizmos
+	m_depthTarget.unbind();
+
+	aie::Application::setBackgroundColour(0.25f, 0.25f, 0.25f); // default color
+
+	clearScreen();
+
 	m_postProcess.bind();
-	m_postProcess.bindUniform("colorTarget", 0);
 	m_postProcess.bindUniform("postProcessTarget", m_scene->GetPostProcessValue());
 	m_postProcess.bindUniform("fTime", getTime());
+	m_postProcess.bindUniform("colorTarget", 0);
 	m_renderTarget.getTarget(0).bind(0);
+	m_postProcess.bindUniform("depthTarget", 1);
+	m_depthTarget.getTarget(0).bind(1);
 
 	m_screenQuad.draw();
 }

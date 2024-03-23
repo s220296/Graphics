@@ -27,6 +27,7 @@ public:
 	~Instance() {}
 
 	void Draw(Scene* scene);
+	void DrawDepth(Scene* scene);
 
 	static glm::mat4 MakeTransform(
 		glm::vec3 _position,
@@ -34,10 +35,14 @@ public:
 		glm::vec3 _scale);
 
 protected:
+	bool LoadDepthShader();
+
+protected:
 	glm::mat4 m_transform;
 	aie::OBJMesh* m_mesh;
 	Mesh* m_simpleMesh;
 	aie::ShaderProgram* m_shader;
+	aie::ShaderProgram* m_depthShader;
 
 	bool m_isUntextured;
 };

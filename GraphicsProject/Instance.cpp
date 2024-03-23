@@ -11,6 +11,7 @@ Instance::Instance(glm::mat4 transform, aie::OBJMesh* mesh,
 	: m_transform(transform), m_mesh(mesh), m_shader(shader),
 	m_isUntextured(isUntextured)
 {
+	LoadDepthShader();
 }
 
 Instance::Instance(glm::vec3 _position, glm::vec3 _eulerAngles, 
@@ -19,6 +20,7 @@ Instance::Instance(glm::vec3 _position, glm::vec3 _eulerAngles,
 	: m_mesh(mesh), m_shader(shader), m_isUntextured(isUntextured)
 {
 	m_transform = MakeTransform(_position, _eulerAngles, _scale);
+	LoadDepthShader();
 }
 
 void Instance::Draw(Scene* scene)
@@ -52,6 +54,25 @@ void Instance::Draw(Scene* scene)
 	// are colored with a depth.frag and use that to create a render texture
 }
 
+void Instance::DrawDepth(Scene* scene)
+{
+	// lower values means more gradual darkening over longer distances
+	// effectively: lower value = can see farther
+	const float depthMultiplier = 0.04f; 
+
+	m_depthShader->bind();
+
+	auto pv = scene->GetCamera()->GetProjectionMatrix(
+		scene->GetWindowSize().x, scene->GetWindowSize().y) *
+		scene->GetCamera()->GetViewMatrix();
+
+	m_depthShader->bindUniform("ProjectionViewModel", pv * m_transform);
+	m_depthShader->bindUniform("CameraPosition", scene->GetCamera()->GetPosition());
+	m_depthShader->bindUniform("depthMultiplier", depthMultiplier);
+
+	m_mesh->draw();
+}
+
 glm::mat4 Instance::MakeTransform(glm::vec3 _position, glm::vec3 _eulerAngles, glm::vec3 _scale)
 {
 	return glm::translate(glm::mat4(1), _position)
@@ -62,4 +83,18 @@ glm::mat4 Instance::MakeTransform(glm::vec3 _position, glm::vec3 _eulerAngles, g
 		* glm::rotate(glm::mat4(1), glm::radians(_eulerAngles.x),
 			glm::vec3(1, 0, 0))
 		* glm::scale(glm::mat4(1), _scale);
+}
+
+bool Instance::LoadDepthShader()
+{
+	m_depthShader = new aie::ShaderProgram();
+
+	m_depthShader->loadShader(aie::eShaderStage::VERTEX, "./shaders/depth.vert");
+	m_depthShader->loadShader(aie::eShaderStage::FRAGMENT, "./shaders/depth.frag");
+
+	if (m_depthShader->link() == false)
+	{
+		printf("Depth Shader Error: %s \n", m_depthShader->getLastError());
+		return false;
+	}
 }

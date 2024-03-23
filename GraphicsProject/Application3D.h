@@ -42,6 +42,7 @@ protected:
 	glm::mat4 m_quadTransform;
 
 	aie::RenderTarget m_renderTarget;
+	aie::RenderTarget m_depthTarget; // use this
 
 	aie::ShaderProgram m_simplePhong;
 	aie::ShaderProgram m_classicPhong;

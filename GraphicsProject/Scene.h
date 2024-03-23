@@ -45,6 +45,7 @@ public:
 	void AddInstance(Instance* _instance);
 	void Update(float _dt);
 	void Draw();
+	void DrawDepth();
 	void ImGUI_Functions();
 	
 	void AddPointLights(Light _light) 

@@ -4,6 +4,7 @@
 in vec2 vTexCoord;
 
 uniform sampler2D colorTarget;
+uniform sampler2D depthTarget;
 uniform int postProcessTarget;
 uniform float fTime;
 
@@ -24,21 +25,21 @@ vec4 Distort (vec2 texCoord)
     return texture(colorTarget, newCoord);
 }
 
-vec4 BoxBlur (vec2 texCoord)
+vec4 BoxBlur (vec2 texCoord, int pDistance)
 {
     vec2 texel = 1.0f / textureSize(colorTarget, 0);
     vec4 color = texture(colorTarget, texCoord);
 
-    color += texture(colorTarget, texCoord + texel * vec2(-1, 1));
-    color += texture(colorTarget, texCoord + texel * vec2(-1, 0));
-    color += texture(colorTarget, texCoord + texel * vec2(-1, -1));
+    color += texture(colorTarget, texCoord + texel * vec2(-pDistance, pDistance));
+    color += texture(colorTarget, texCoord + texel * vec2(-pDistance, 0));
+    color += texture(colorTarget, texCoord + texel * vec2(-pDistance, -pDistance));
 
-    color += texture(colorTarget, texCoord + texel * vec2(0, 1));
-    color += texture(colorTarget, texCoord + texel * vec2(0, -1));
+    color += texture(colorTarget, texCoord + texel * vec2(0, pDistance));
+    color += texture(colorTarget, texCoord + texel * vec2(0, -pDistance));
 
-    color += texture(colorTarget, texCoord + texel * vec2(1, 1));
-    color += texture(colorTarget, texCoord + texel * vec2(1, 0));
-    color += texture(colorTarget, texCoord + texel * vec2(1, -1));
+    color += texture(colorTarget, texCoord + texel * vec2(pDistance, pDistance));
+    color += texture(colorTarget, texCoord + texel * vec2(pDistance, 0));
+    color += texture(colorTarget, texCoord + texel * vec2(pDistance, -pDistance));
 
     return color / 9;
 }
@@ -154,6 +155,34 @@ vec4 Posterize (vec2 texCoord)
     return color;
 }
 
+vec4 Fog (vec2 texCoord)
+{
+    vec4 depthBuffer = texture(depthTarget, texCoord);
+    vec4 colorBuffer = texture(colorTarget, texCoord);
+
+    vec4 color = colorBuffer;
+    color.b = depthBuffer.b;
+
+    return color;
+}
+
+vec4 DepthOfField (vec2 texCoord)
+{
+    vec4 depthBuffer = texture(depthTarget, texCoord);
+
+    const float focalDepth = 0.2f;
+    const float focalRange = 0.07f;
+
+    float diff = abs(depthBuffer.x - focalDepth);
+
+    if (diff > focalRange * 2)
+    { return (BoxBlur(texCoord, 1) + BoxBlur(texCoord, 2)) / 2; }
+    else if (diff > focalRange)
+    { return BoxBlur(texCoord, 1); }
+    else
+    { return texture(colorTarget, texCoord); }
+}
+
 void main()
 {
     // first we want to calculate the texel's size
@@ -173,7 +202,7 @@ void main()
         FragColour = Distort(texCoord);
         break;
         case 2: //Box Blur
-        FragColour = BoxBlur(texCoord);
+        FragColour = BoxBlur(texCoord, 1);
         break;
         case 3: //Edge Detection
         FragColour = EdgeDetection(texCoord);
@@ -197,10 +226,10 @@ void main()
         FragColour = Posterize(texCoord);
         break;
         case 10: //Distance Fog
-        FragColour = Default(texCoord);
+        FragColour = Fog(texCoord);
         break;
         case 11: //Depth of Field
-        FragColour = Default(texCoord);
+        FragColour = DepthOfField(texCoord);
         break;
     }
 }
