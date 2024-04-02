@@ -256,80 +256,6 @@ void Application3D::draw() {
 
 	auto pv = m_projectionMatrix * m_viewMatrix;
 
-	/*
-	// update perspective in case window resized
-	
-
-#pragma region ClassicPhong
-
-	// bind shader
-	m_classicPhong.bind();
-	// bind transform
-	m_classicPhong.bindUniform("ProjectionViewModel", pv * m_quadTransform);
-
-	// bind texture location
-	m_classicPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_quadTransform)));
-
-	m_classicPhong.bindUniform("CameraPosition", camera.GetPosition());
-
-	m_classicPhong.bindUniform("LightDirection", m_light.direction);
-	m_classicPhong.bindUniform("ambientLight", m_ambientLight);
-	m_classicPhong.bindUniform("diffuseLight", m_light.diffuse);
-	m_classicPhong.bindUniform("specularLight", m_light.specular);
-
-	// draw quad
-	//m_quadMesh.draw();
-
-	//m_classicPhong.bind();
-	//m_classicPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
-	//m_texturedShader.bindUniform("diffuseTexture", 0);
-	//m_spearTexture.bind(0);
-	//m_spearMesh.draw();
-	
-	m_shader.bind();
-	m_shader.bindUniform("ProjectionViewModel", pv * m_dragTransform);
-	m_dragonMesh.draw();
-
-#pragma endregion
-	
-#pragma region TexturedPhong
-
-	// Phong stuff
-	
-	m_texturedPhong.bind();
-	m_texturedPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
-	m_texturedPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
-	m_texturedPhong.bindUniform("CameraPosition", camera.GetPosition());
-	m_texturedPhong.bindUniform("LightDirection", m_light.direction);
-	m_texturedPhong.bindUniform("ambientLight", m_ambientLight);
-	m_texturedPhong.bindUniform("diffuseLight", m_light.diffuse);
-	m_texturedPhong.bindUniform("specularLight", m_light.specular);
-	m_texturedPhong.bindUniform("diffuseTexture", 0);
-	m_spearTexture.bind(0);
-	m_spearMesh.draw();
-	
-#pragma endregion
-
-#pragma region NormalMapPhong
-
-	m_normalMapPhong.bind();
-	m_normalMapPhong.bindUniform("ProjectionViewModel", pv * m_spearTransform);
-	m_normalMapPhong.bindUniform("NormalMatrix", glm::inverseTranspose(glm::mat3(m_spearTransform)));
-	m_normalMapPhong.bindUniform("CameraPosition", camera.GetPosition());
-	m_normalMapPhong.bindUniform("LightDirection", m_light.direction);
-	m_normalMapPhong.bindUniform("ambientLight", m_ambientLight);
-	m_normalMapPhong.bindUniform("diffuseLight", m_light.diffuse);
-	m_normalMapPhong.bindUniform("specularLight", m_light.specular);
-	m_normalMapPhong.bindUniform("diffuseTexture", 0);
-	m_normalMapPhong.bindUniform("specularTexture", 0);
-	// no need for texture.bind(0), obj file handles that for us, along with OBJMesh.cpp
-
-	m_spearMesh.draw();
-
-#pragma endregion
-
-*/
-
 	// draw 3D gizmos
 	Gizmos::draw(pv);
 
@@ -337,7 +263,6 @@ void Application3D::draw() {
 	Gizmos::draw2D((float)getWindowWidth(), (float)getWindowHeight());
 
 	// unbind the target from the back buffer
-
 	m_renderTarget.unbind();
 
 	//clear the back buffer
